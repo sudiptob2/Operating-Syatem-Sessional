@@ -1,0 +1,223 @@
+#include<bits/stdc++.h>
+using namespace std;
+void header()
+{
+    cout<<"*********************Program: Operating System LAB*********************\n"<<endl;
+    cout<<"Submitted To, \t\tSubmitted By, "<<endl;
+    cout<<"Moinul Islam Sayed\tSudipto Baral"<<endl;
+    cout<<"Lecturer\t\tID: 1402069"<<endl;
+    cout<<"Department of CIT\tFaculty of computer Science and Engg."<<endl;
+}
+int araSum(int ara[],int n)
+{
+    //A simple Function to find the sum of an ARA
+    int sum =0;
+    for(int i=0; i<n; i++)
+        sum+=ara[i];
+    return sum;
+}
+void SJF()
+{
+    int n;
+    cout<<"Enter the number of processes: "<<endl;
+    cin>>n;
+    int burst_time[n],waiting_time[n],turnaround_time[n],process[n];
+    cout<<"Enter burst Time: "<<endl;
+    for(int i=0; i<n; i++)
+    {
+        cout<<"Process "<<i+1<<": ";
+        cin>>burst_time[i];
+        process[i]=i;
+
+    }
+    //Re- arranging processes according to burst time
+    for(int i=0; i<n-1; i++)
+    {
+        int imin=i;
+        for(int j=i+1; j<n; j++)
+        {
+            if(burst_time[j]<burst_time[imin])
+                imin = j;
+        }
+        swap(burst_time[i],burst_time[imin]);
+        swap(process[i],process[imin]);
+    }
+    int tot_waiting=0;
+    for(int i=0; i<n; i++)
+    {
+        int wt =0;
+        for(int j=0; j<i; j++)
+            wt+=burst_time[j];
+        waiting_time[i]=wt;
+        tot_waiting+=wt;
+    }
+
+    double avg_waiting = (float)tot_waiting/n;
+    cout<<"\nProcess\t    Burst Time    \tWaiting Time\t"<<endl;
+
+    for(int i=0; i<n; i++)
+    {
+        cout<<process[i]+1<<"\t\t"<<burst_time[i]<<"\t\t"<<waiting_time[i]<<endl;
+    }
+    printf("Average waiting time: %.2f\n",avg_waiting);
+}
+void FCFS()
+{
+    int n;
+    cout<<"Enter total number of processes :";
+    cin>>n;
+    int burst_time[n],wt[n],tat[n],avwt=0,avtat=0,i,j;
+    cout<<"\nEnter Process Burst Time\n";
+    for(i=0; i<n; i++)
+    {
+        cout<<"P["<<i+1<<"]:";
+        cin>>burst_time[i];
+    }
+
+    wt[0]=0;    //waiting time for first process is 0
+
+    //calculating waiting time
+    for(i=1; i<n; i++)
+    {
+        wt[i]=0;
+        for(j=0; j<i; j++)
+            wt[i]+=burst_time[j];
+    }
+
+    cout<<"\nProcess\t\tBurst Time\tWaiting Time\tTurnaround Time";
+
+    for(i=0; i<n; i++)
+    {
+        tat[i]=burst_time[i]+wt[i];
+        avwt+=wt[i];
+        avtat+=tat[i];
+        cout<<"\nP["<<i+1<<"]"<<"\t\t"<<burst_time[i]<<"\t\t"<<wt[i]<<"\t\t"<<tat[i];
+    }
+
+    avwt/=i;
+    avtat/=i;
+    cout<<"\n\nAverage Waiting Time:"<<avwt;
+    cout<<"\nAverage Turnaround Time:"<<avtat;
+}
+void RoundRobin()
+{
+    int n;
+    cout<<"Enter the number of process: ";
+    cin>>n;
+    int burst_time[n],remaining_time[n];
+    cout<<"Enter arrival time and Burst time for process "<<endl;
+    cout<<"Process Burst Time\n";
+    for(int i=0; i<n; i++)
+    {
+        cout<<"P["<<i+1<<"] = ";
+        cin>>burst_time[i];
+        remaining_time[i]=burst_time[i]; //Initially Burst time is remaining time
+    }
+
+
+    int Q ; //Time quantum
+    cout<<"Enter the time Quantum: ";
+    cin>>Q;
+    int cy=1;
+    while(true)
+    {
+        cout<<"Cycle "<<cy<<endl;
+        for(int i=0; i<n; i++)
+        {
+            if(remaining_time[i]>0)
+            {
+                remaining_time[i]-=Q;
+                cout<<"P["<<i+1<<"] ";
+            }
+
+        }
+        cout<<endl;
+        if(araSum(remaining_time,n)<=0)
+            break;
+
+        cy++;
+
+    }
+
+}
+void PrioritySche()
+{
+    int n;
+    cout<<"Enter Total Number of Process:";
+    cin>>n;
+    int burst_time[n],processNumber[n],waiting_time[n],tat[n],pr[n],total=0,avg_wt,avg_tat;
+    cout<<"\nEnter Burst Time and Priority\n";
+    for(int i=0; i<n; i++)
+    {
+        cout<<"\nP["<<i+1<<"]\n";
+        cout<<"Burst Time:";
+        cin>>burst_time[i];
+        cout<<"Priority:";
+        cin>>pr[i];
+        processNumber[i]=i+1;           //contains process number
+    }
+
+    //sorting burst time, priority and process number in ascending order using selection sort
+    for(int i=0; i<n; i++)
+    {
+        int iMin=i;
+        for(int j=i+1; j<n; j++)
+        {
+            if(pr[j]<pr[iMin])
+                iMin=j;
+        }
+        swap(pr[i],pr[iMin]);
+        swap(burst_time[i],burst_time[iMin]);
+        swap(processNumber[i],processNumber[iMin]);
+    }
+
+    waiting_time[0]=0;
+
+    //calculate waiting time
+    for(int i=1; i<n; i++)
+    {
+        waiting_time[i]=0;
+        for(int j=0; j<i; j++)
+            waiting_time[i]+=burst_time[j];
+
+        total+=waiting_time[i];
+    }
+
+    avg_wt=total/n;
+    total=0;
+
+    cout<<"\nProcess\t    Burst Time    \tWaiting Time\tTurnaround Time";
+    for(int i=0; i<n; i++)
+    {
+        tat[i]=burst_time[i]+waiting_time[i];
+        total+=tat[i];
+        cout<<"\nP["<<processNumber[i]<<"]\t\t  "<<burst_time[i]<<"\t\t    "<<waiting_time[i]<<"\t\t\t"<<tat[i];
+    }
+
+    avg_tat=total/n;     //average turnaround time
+    cout<<"\n\nAverage Waiting Time="<<avg_wt;
+    cout<<"\nAverage Turnaround Time="<<avg_tat<<endl;;
+}
+
+int main()
+{
+    header();
+    while(true)
+    {
+        int choice;
+        cout<<"\nEnter your choice "<<endl;
+        cout<<"1.First Come First Serve(FCFS)\n2.Shortest Job First (SJF)\n3.Priority Scheduling\n4.Round Robin\n5.Any other number to Exit"<<endl;
+        cin>>choice;
+        if(choice==1)
+            FCFS();
+        else if(choice==2)
+            SJF();
+        else if(choice==3)
+            PrioritySche();
+        else if(choice==4)
+            RoundRobin();
+        else
+            break;
+    }
+
+}
